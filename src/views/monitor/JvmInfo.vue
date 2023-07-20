@@ -145,7 +145,7 @@ import moment from 'moment'
 moment.locale('zh-cn')
 
 export default {
-  data() {
+  data () {
     return {
       time: '',
       loading: true,
@@ -185,11 +185,11 @@ export default {
       }
     }
   },
-  mounted() {
+  mounted () {
     this.create()
   },
   methods: {
-    create() {
+    create () {
       this.time = moment().format('YYYY年MM月DD日 HH时mm分ss秒')
       axios.all([
         this.$get('actuator/metrics/jvm.memory.max'),
@@ -232,7 +232,7 @@ export default {
         this.$message.error('获取JVM信息失败')
       })
     },
-    convert(value) {
+    convert (value) {
       return Number(value / 1048576).toFixed(3)
     }
   }
