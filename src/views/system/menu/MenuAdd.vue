@@ -6,7 +6,7 @@
     placement="right"
     :closable="false"
     @close="onClose"
-    :visible="menuAddVisiable"
+    :visible="menuAddVisible"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
     <a-form :form="form">
       <a-form-item label='菜单名称' v-bind="formItemLayout">
@@ -94,7 +94,7 @@ export default {
   name: 'MenuAdd',
   components: {Icons},
   props: {
-    menuAddVisiable: {
+    menuAddVisible: {
       default: false
     }
   },
@@ -167,7 +167,7 @@ export default {
           }
           // 0 表示菜单 1 表示按钮
           this.menu.type = '0'
-          this.$post('menu', {
+          this.$post('menu/add', {
             ...this.menu
           }).then(() => {
             this.reset()
@@ -186,13 +186,13 @@ export default {
     }
   },
   watch: {
-    menuAddVisiable () {
-      if (this.menuAddVisiable) {
-        this.$get('menu', {
-          type: '0'
+    menuAddVisible () {
+      if (this.menuAddVisible) {
+        this.$post('menu', {
+          type: 0
         }).then((r) => {
-          this.menuTreeData = r.data.rows.children
-          this.allTreeKeys = r.data.ids
+          this.menuTreeData = r.data.data.records.children
+          this.allTreeKeys = r.data.data.ids
         })
       }
     }

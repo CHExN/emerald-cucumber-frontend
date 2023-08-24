@@ -6,18 +6,18 @@
     placement="right"
     :closable="false"
     @close="onClose"
-    :visible="dictEditVisiable"
+    :visible="dictEditVisible"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
     <a-form :form="form">
       <a-form-item label='键' v-bind="formItemLayout">
         <a-input-number style="width: 100%"
-                        v-decorator="['keyy',
+                        v-decorator="['key',
                    {rules: [
                     { required: true, message: '不能为空'}
                   ]}]"/>
       </a-form-item>
       <a-form-item label='值' v-bind="formItemLayout">
-        <a-input v-decorator="['valuee',
+        <a-input v-decorator="['value',
                    {rules: [
                     { required: true, message: '不能为空'},
                     { max: 20, message: '长度不能超过20个字符'}
@@ -54,7 +54,7 @@ const formItemLayout = {
 export default {
   name: 'DictEdit',
   props: {
-    dictEditVisiable: {
+    dictEditVisible: {
       default: false
     }
   },
@@ -76,7 +76,7 @@ export default {
       this.$emit('close')
     },
     setFormValues ({...dict}) {
-      let fields = ['keyy', 'valuee', 'tableName', 'fieldName']
+      let fields = ['key', 'value', 'tableName', 'fieldName']
       Object.keys(dict).forEach((key) => {
         if (fields.indexOf(key) !== -1) {
           this.form.getFieldDecorator(key)

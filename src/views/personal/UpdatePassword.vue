@@ -128,7 +128,7 @@ export default {
       this.form.validateFields((err, values) => {
         if (!err) {
           let newPassword = this.form.getFieldValue('password')
-          this.$put('user/password', {
+          this.$patch('user/password', {
             password: newPassword,
             username: this.user.username
           }).then(() => {

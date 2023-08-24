@@ -6,7 +6,7 @@
     placement="right"
     :closable="false"
     @close="onClose"
-    :visible="roleEditVisiable"
+    :visible="roleEditVisible"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
     <a-form :form="form">
       <a-form-item label='角色名称' v-bind="formItemLayout">
@@ -67,7 +67,7 @@ const formItemLayout = {
 export default {
   name: 'RoleEdit',
   props: {
-    roleEditVisiable: {
+    roleEditVisible: {
       default: false
     },
     roleInfoData: {
@@ -83,7 +83,7 @@ export default {
       menuSelectStatus: '',
       menuSelectHelp: '',
       role: {
-        menuId: ''
+        menuIds: []
       },
       menuTreeData: [],
       allTreeKeys: [],
@@ -154,8 +154,8 @@ export default {
           if (!err) {
             this.loading = true
             let role = this.form.getFieldsValue()
-            role.roleId = this.roleInfoData.roleId
-            role.menuId = checkedArr.join(',')
+            role.id = this.roleInfoData.id
+            role.menuIds = checkedArr
             this.$put('role', {
               ...role
             }).then((r) => {
@@ -170,12 +170,12 @@ export default {
     }
   },
   watch: {
-    roleEditVisiable () {
-      if (this.roleEditVisiable) {
-        this.$get('menu').then((r) => {
-          this.menuTreeData = r.data.rows.children
-          this.allTreeKeys = r.data.ids
-          this.$get('role/menu/' + this.roleInfoData.roleId).then((r) => {
+    roleEditVisible () {
+      if (this.roleEditVisible) {
+        this.$post('menu').then((r) => {
+          this.menuTreeData = r.data.data.records.children
+          this.allTreeKeys = r.data.data.ids
+          this.$get('role/menu/' + this.roleInfoData.id).then((r) => {
             this.defaultCheckedKeys.splice(0, this.defaultCheckedKeys.length, r.data)
             this.checkedKeys = r.data
             this.expandedKeys = r.data

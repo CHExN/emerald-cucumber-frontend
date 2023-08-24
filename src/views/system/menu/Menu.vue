@@ -4,8 +4,8 @@
       <!-- 搜索区域 -->
       <a-form layout="horizontal">
         <div :class="advanced ? null: 'fold'">
-          <a-row >
-            <a-col :md="12" :sm="24" >
+          <a-row>
+            <a-col :md="12" :sm="24">
               <a-form-item
                 label="名称"
                 :labelCol="{span: 5}"
@@ -13,7 +13,7 @@
                 <a-input v-model="queryParams.menuName"/>
               </a-form-item>
             </a-col>
-            <a-col :md="12" :sm="24" >
+            <a-col :md="12" :sm="24">
               <a-form-item
                 label="创建时间"
                 :labelCol="{span: 5}"
@@ -37,16 +37,17 @@
           cancelText="菜单"
           @cancel="() => createMenu()"
           @confirm="() => createButton()">
-          <a-icon slot="icon" type="question-circle-o" style="color: orangered" />
+          <a-icon slot="icon" type="question-circle-o" style="color: orangered"/>
           <a-button type="primary" v-hasPermission="['menu:add']" ghost>新增</a-button>
         </a-popconfirm>
         <a-button v-hasPermission="['menu:delete']" @click="batchDelete">删除</a-button>
         <a-dropdown v-hasPermission="['menu:export']">
           <a-menu slot="overlay">
-            <a-menu-item key="export-data" @click="exprotExccel">导出Excel</a-menu-item>
+            <a-menu-item key="export-data" @click="exportExcel">导出Excel</a-menu-item>
           </a-menu>
           <a-button>
-            更多操作 <a-icon type="down" />
+            更多操作
+            <a-icon type="down"/>
           </a-button>
         </a-dropdown>
       </div>
@@ -59,10 +60,11 @@
                :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
                @change="handleTableChange" :scroll="{ x: 1500 }">
         <template v-if="text" slot="icon" slot-scope="text, record">
-         <a-icon :type="text" />
+          <a-icon :type="text"/>
         </template>
         <template slot="operation" slot-scope="text, record">
-          <a-icon v-hasPermission="['menu:update']" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="修改"></a-icon>
+          <a-icon v-hasPermission="['menu:update']" type="setting" theme="twoTone" twoToneColor="#4a9ff5"
+                  @click="edit(record)" title="修改"></a-icon>
           <a-badge v-hasNoPermission="['menu:update']" status="warning" text="无权限"></a-badge>
         </template>
       </a-table>
@@ -71,27 +73,27 @@
     <menu-add
       @close="handleMenuAddClose"
       @success="handleMenuAddSuccess"
-      :menuAddVisiable="menuAddVisiable">
+      :menuAddVisible="menuAddVisible">
     </menu-add>
     <!-- 修改菜单 -->
     <menu-edit
       ref="menuEdit"
       @close="handleMenuEditClose"
       @success="handleMenuEditSuccess"
-      :menuEditVisiable="menuEditVisiable">
+      :menuEditVisible="menuEditVisible">
     </menu-edit>
     <!-- 新增按钮 -->
     <button-add
       @close="handleButtonAddClose"
       @success="handleButtonAddSuccess"
-      :buttonAddVisiable="buttonAddVisiable">
+      :buttonAddVisible="buttonAddVisible">
     </button-add>
     <!-- 修改按钮 -->
     <button-edit
       ref="buttonEdit"
       @close="handleButtonEditClose"
       @success="handleButtonEditSuccess"
-      :buttonEditVisiable="buttonEditVisiable">
+      :buttonEditVisible="buttonEditVisible">
     </button-edit>
   </a-card>
 </template>
@@ -120,10 +122,10 @@ export default {
         indentSize: 100
       },
       loading: false,
-      menuAddVisiable: false,
-      menuEditVisiable: false,
-      buttonAddVisiable: false,
-      buttonEditVisiable: false
+      menuAddVisible: false,
+      menuEditVisible: false,
+      buttonAddVisible: false,
+      buttonEditVisible: false
     }
   },
   computed: {
@@ -138,7 +140,7 @@ export default {
       }, {
         title: '图标',
         dataIndex: 'icon',
-        scopedSlots: { customRender: 'icon' }
+        scopedSlots: {customRender: 'icon'}
       }, {
         title: '类型',
         dataIndex: 'type',
@@ -152,12 +154,15 @@ export default {
               return text
           }
         },
+        // filters 属性指定需要筛选菜单的列
         filters: [
           {text: '按钮', value: '1'},
           {text: '菜单', value: '0'}
         ],
+        // filterMultiple 用于指定多选和单选(true多/false单)
         filterMultiple: false,
         filteredValue: filteredInfo.type || null,
+        // onFilter 用于筛选当前数据
         onFilter: (value, record) => record.type.includes(value)
       }, {
         title: '地址',
@@ -194,56 +199,56 @@ export default {
       this.selectedRowKeys = selectedRowKeys
     },
     handleMenuEditClose () {
-      this.menuEditVisiable = false
+      this.menuEditVisible = false
     },
     handleMenuEditSuccess () {
-      this.menuEditVisiable = false
+      this.menuEditVisible = false
       this.$message.success('修改菜单成功')
       this.fetch()
     },
     handleButtonEditClose () {
-      this.buttonEditVisiable = false
+      this.buttonEditVisible = false
     },
     handleButtonEditSuccess () {
-      this.buttonEditVisiable = false
+      this.buttonEditVisible = false
       this.$message.success('修改按钮成功')
       this.fetch()
     },
     edit (record) {
       if (record.type === '0') {
         this.$refs.menuEdit.setFormValues(record)
-        this.menuEditVisiable = true
+        this.menuEditVisible = true
       } else {
         this.$refs.buttonEdit.setFormValues(record)
-        this.buttonEditVisiable = true
+        this.buttonEditVisible = true
       }
     },
     handleButtonAddClose () {
-      this.buttonAddVisiable = false
+      this.buttonAddVisible = false
     },
     handleButtonAddSuccess () {
-      this.buttonAddVisiable = false
+      this.buttonAddVisible = false
       this.$message.success('新增按钮成功')
       this.fetch()
     },
     createButton () {
-      this.buttonAddVisiable = true
+      this.buttonAddVisible = true
     },
     handleMenuAddClose () {
-      this.menuAddVisiable = false
+      this.menuAddVisible = false
     },
     handleMenuAddSuccess () {
-      this.menuAddVisiable = false
+      this.menuAddVisible = false
       this.$message.success('新增菜单成功')
       this.fetch()
     },
     createMenu () {
-      this.menuAddVisiable = true
+      this.menuAddVisible = true
     },
     handleDateChange (value) {
       if (value) {
-        this.queryParams.createTimeFrom = value[0]
-        this.queryParams.createTimeTo = value[1]
+        this.queryParams.createTimeStart = value[0]
+        this.queryParams.createTimeEnd = value[1]
       }
     },
     batchDelete () {
@@ -268,7 +273,7 @@ export default {
         }
       })
     },
-    exprotExccel () {
+    exportExcel () {
       let {filteredInfo} = this
       this.$export('menu/excel', {
         ...this.queryParams,
@@ -304,16 +309,18 @@ export default {
       })
     },
     fetch (params = {}) {
+      // TODO 需检查一下 Ant Vue Table 组件的 filters 功能，单选返回的值为什么是数组类型
+      if (params.type) params.type = params.type[0]
       this.loading = true
-      this.$get('menu', {
+      this.$post('menu', {
         ...params
       }).then((r) => {
-        let data = r.data
+        let data = r.data.data
         this.loading = false
-        if (Object.is(data.rows.children, undefined)) {
-          this.dataSource = data.rows
+        if (Object.is(data.records.children, undefined)) {
+          this.dataSource = data.records
         } else {
-          this.dataSource = data.rows.children
+          this.dataSource = data.records.children
         }
       })
     }

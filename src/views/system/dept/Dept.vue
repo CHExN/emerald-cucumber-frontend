@@ -60,14 +60,14 @@
     <dept-add
       @success="handleDeptAddSuccess"
       @close="handleDeptAddClose"
-      :deptAddVisiable="deptAddVisiable">
+      :deptAddVisible="deptAddVisible">
     </dept-add>
     <!-- 修改部门 -->
     <dept-edit
       ref="deptEdit"
       @success="handleDeptEditSuccess"
       @close="handleDeptEditClose"
-      :deptEditVisiable="deptEditVisiable">
+      :deptEditVisible="deptEditVisible">
     </dept-edit>
   </a-card>
 </template>
@@ -93,8 +93,8 @@ export default {
         indentSize: 100
       },
       loading: false,
-      deptAddVisiable: false,
-      deptEditVisiable: false
+      deptAddVisible: false,
+      deptEditVisible: false
     }
   },
   computed: {
@@ -134,32 +134,32 @@ export default {
       this.selectedRowKeys = selectedRowKeys
     },
     handleDeptAddClose () {
-      this.deptAddVisiable = false
+      this.deptAddVisible = false
     },
     handleDeptAddSuccess () {
-      this.deptAddVisiable = false
+      this.deptAddVisible = false
       this.$message.success('新增部门成功')
       this.fetch()
     },
     add () {
-      this.deptAddVisiable = true
+      this.deptAddVisible = true
     },
     handleDeptEditClose () {
-      this.deptEditVisiable = false
+      this.deptEditVisible = false
     },
     handleDeptEditSuccess () {
-      this.deptEditVisiable = false
+      this.deptEditVisible = false
       this.$message.success('修改部门成功')
       this.fetch()
     },
     edit (record) {
-      this.deptEditVisiable = true
+      this.deptEditVisible = true
       this.$refs.deptEdit.setFormValues(record)
     },
     handleDateChange (value) {
       if (value) {
-        this.queryParams.createTimeFrom = value[0]
-        this.queryParams.createTimeTo = value[1]
+        this.queryParams.createTimeStart = value[0]
+        this.queryParams.createTimeEnd = value[1]
       }
     },
     batchDelete () {
@@ -237,9 +237,10 @@ export default {
       this.$get('dept', {
         ...params
       }).then((r) => {
-        let data = r.data
+        console.log(r)
+        let data = r.data.data
         this.loading = false
-        this.dataSource = data.rows.children
+        this.dataSource = data.records.children
       })
     }
   }

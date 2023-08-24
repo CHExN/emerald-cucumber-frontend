@@ -15,7 +15,7 @@ export default {
     systemName: 'Emerald System',
     copyright: `${new Date().getFullYear()} <a href="https://github.com/CHExN" target="_blank">CHE&N</a>`,
     multipage: getBooleanValue(db.get('MULTIPAGE'), true),
-    fixSiderbar: getBooleanValue(db.get('FIX_SIDERBAR'), true),
+    fixSidebar: getBooleanValue(db.get('FIX_SIDERBAR'), true),
     fixHeader: getBooleanValue(db.get('FIX_HEADER'), true),
     colorList: [
       'rgb(245, 34, 45)',
@@ -48,9 +48,9 @@ export default {
     setSidebar (state, type) {
       state.sidebar.opened = type
     },
-    fixSiderbar (state, flag) {
+    fixSidebar (state, flag) {
       db.save('FIX_SIDERBAR', flag)
-      state.fixSiderbar = flag
+      state.fixSidebar = flag
     },
     fixHeader (state, flag) {
       db.save('FIX_HEADER', flag)

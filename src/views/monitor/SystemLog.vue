@@ -53,7 +53,7 @@
         <a-button v-hasPermission="['log:delete']" @click="batchDelete" type="primary" ghost>删除</a-button>
         <a-dropdown v-hasPermission="['log:export']">
           <a-menu slot="overlay">
-            <a-menu-item key="export-data" @click="exprotExccel">导出Excel</a-menu-item>
+            <a-menu-item key="export-data" @click="exportExcel">导出Excel</a-menu-item>
           </a-menu>
           <a-button>
             更多操作 <a-icon type="down" />
@@ -174,15 +174,15 @@ export default {
     toggleAdvanced () {
       this.advanced = !this.advanced
       if (!this.advanced) {
-        this.queryParams.createTimeFrom = ''
-        this.queryParams.createTimeTo = ''
+        this.queryParams.createTimeStart = ''
+        this.queryParams.createTimeEnd = ''
         this.queryParams.location = ''
       }
     },
     handleDateChange (value) {
       if (value) {
-        this.queryParams.createTimeFrom = value[0]
-        this.queryParams.createTimeTo = value[1]
+        this.queryParams.createTimeStart = value[0]
+        this.queryParams.createTimeEnd = value[1]
       }
     },
     batchDelete () {
@@ -208,7 +208,7 @@ export default {
         }
       })
     },
-    exprotExccel () {
+    exportExcel () {
       let {sortedInfo} = this
       let sortField, sortOrder
       // 获取当前列的排序和列的过滤规则
@@ -274,6 +274,7 @@ export default {
         this.$refs.TableInfo.pagination.pageSize = this.paginationInfo.pageSize
         params.pageSize = this.paginationInfo.pageSize
         params.pageNum = this.paginationInfo.current
+        params.totalRow = this.paginationInfo.total
       } else {
         // 如果分页信息为空，则设置为默认值
         params.pageSize = this.pagination.defaultPageSize
@@ -283,10 +284,16 @@ export default {
         ...params
       }).then((r) => {
         let data = r.data
+        console.log(r)
+        if (r.code === 1) {
+          this.$message.error(r.message)
+          return
+        }
+        data = data.data
         const pagination = { ...this.pagination }
-        pagination.total = data.total
+        pagination.total = data.totalRow
         this.loading = false
-        this.dataSource = data.rows
+        this.dataSource = data.records
         this.pagination = pagination
       })
     }

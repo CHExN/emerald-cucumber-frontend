@@ -35,7 +35,7 @@
         <a-button v-hasPermission="['role:delete']" @click="batchDelete">删除</a-button>
         <a-dropdown v-hasPermission="['role:export']">
           <a-menu slot="overlay">
-            <a-menu-item key="export-data" @click="exprotExccel">导出Excel</a-menu-item>
+            <a-menu-item key="export-data" @click="exportExcel">导出Excel</a-menu-item>
           </a-menu>
           <a-button>
             更多操作 <a-icon type="down" />
@@ -45,7 +45,7 @@
       <!-- 表格区域 -->
       <a-table ref="TableInfo"
                :columns="columns"
-               :rowKey="record => record.roleId"
+               :rowKey="record => record.id"
                :dataSource="dataSource"
                :pagination="pagination"
                :loading="loading"
@@ -69,14 +69,14 @@
       <!-- 角色信息查看 -->
       <role-info
         @close="handleRoleInfoClose"
-        :roleInfoVisiable="roleInfo.visiable"
+        :roleInfoVisible="roleInfo.visible"
         :roleInfoData="roleInfo.data">
       </role-info>
       <!-- 新增角色 -->
       <role-add
         @close="handleRoleAddClose"
         @success="handleRoleAddSuccess"
-        :roleAddVisiable="roleAdd.visiable">
+        :roleAddVisible="roleAdd.visible">
       </role-add>
       <!-- 修改角色 -->
       <role-edit
@@ -84,7 +84,7 @@
         :roleInfoData="roleInfo.data"
         @close="handleRoleEditClose"
         @success="handleRoleEditSuccess"
-        :roleEditVisiable="roleEdit.visiable">
+        :roleEditVisible="roleEdit.visible">
       </role-edit>
     </div>
   </a-card>
@@ -103,18 +103,18 @@ export default {
     return {
       advanced: false,
       roleInfo: {
-        visiable: false,
+        visible: false,
         data: {}
       },
       roleAdd: {
-        visiable: false
+        visible: false
       },
       roleEdit: {
-        visiable: false
+        visible: false
       },
       queryParams: {
-        createTimeFrom: '',
-        createTimeTo: ''
+        createTimeStart: '',
+        createTimeEnd: ''
       },
       dataSource: [],
       sortedInfo: null,
@@ -168,40 +168,40 @@ export default {
       this.selectedRowKeys = selectedRowKeys
     },
     add () {
-      this.roleAdd.visiable = true
+      this.roleAdd.visible = true
     },
     handleRoleAddClose () {
-      this.roleAdd.visiable = false
+      this.roleAdd.visible = false
     },
     handleRoleAddSuccess () {
-      this.roleAdd.visiable = false
+      this.roleAdd.visible = false
       this.$message.success('新增角色成功')
       this.search()
     },
     view (record) {
       this.roleInfo.data = record
-      this.roleInfo.visiable = true
+      this.roleInfo.visible = true
     },
     handleRoleInfoClose () {
-      this.roleInfo.visiable = false
+      this.roleInfo.visible = false
     },
     edit (record) {
       this.$refs.roleEdit.setFormValues(record)
       this.roleInfo.data = record
-      this.roleEdit.visiable = true
+      this.roleEdit.visible = true
     },
     handleRoleEditSuccess () {
-      this.roleEdit.visiable = false
+      this.roleEdit.visible = false
       this.$message.success('修改角色成功')
       this.search()
     },
     handleRoleEditClose () {
-      this.roleEdit.visiable = false
+      this.roleEdit.visible = false
     },
     handleDateChange (value) {
       if (value) {
-        this.queryParams.createTimeFrom = value[0]
-        this.queryParams.createTimeTo = value[1]
+        this.queryParams.createTimeStart = value[0]
+        this.queryParams.createTimeEnd = value[1]
       }
     },
     batchDelete () {
@@ -217,7 +217,7 @@ export default {
         onOk () {
           let roleIds = []
           let selectedRowKeysStr = ',' + that.selectedRowKeys.join(',') + ','
-          roleIds.push(that.dataSource.filter(f => { return selectedRowKeysStr.indexOf(',' + f.roleId + ',') > -1 }).map(m => { return m.roleId }))
+          roleIds.push(that.dataSource.filter(f => { return selectedRowKeysStr.indexOf(',' + f.id + ',') > -1 }).map(m => { return m.roleId }))
           that.$delete('role/' + roleIds.join(',')).then(() => {
             that.$message.success('删除成功')
             that.selectedRowKeys = []
@@ -229,7 +229,7 @@ export default {
         }
       })
     },
-    exprotExccel () {
+    exportExcel () {
       let {sortedInfo} = this
       let sortField, sortOrder
       // 获取当前列的排序和列的过滤规则
@@ -292,6 +292,7 @@ export default {
         this.$refs.TableInfo.pagination.pageSize = this.paginationInfo.pageSize
         params.pageSize = this.paginationInfo.pageSize
         params.pageNum = this.paginationInfo.current
+        params.totalRow = this.paginationInfo.total
       } else {
         // 如果分页信息为空，则设置为默认值
         params.pageSize = this.pagination.defaultPageSize
@@ -301,9 +302,15 @@ export default {
         ...params
       }).then((r) => {
         let data = r.data
+        console.log(data)
+        if (data.code === 1) {
+          this.$message.error(data.message)
+          return
+        }
+        data = data.data
         const pagination = { ...this.pagination }
-        pagination.total = data.total
-        this.dataSource = data.rows
+        pagination.total = data.totalRow
+        this.dataSource = data.records
         this.pagination = pagination
         this.loading = false
       })

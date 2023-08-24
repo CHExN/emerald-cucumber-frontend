@@ -27,6 +27,7 @@ Vue.use({
 Vue.prototype.$post = request.post
 Vue.prototype.$get = request.get
 Vue.prototype.$put = request.put
+Vue.prototype.$patch = request.patch
 Vue.prototype.$delete = request.delete
 Vue.prototype.$export = request.export
 Vue.prototype.$download = request.download

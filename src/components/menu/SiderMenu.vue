@@ -1,6 +1,6 @@
 <template>
   <a-layout-sider
-    :class="[theme, 'sider', isMobile ? null : 'shadow', fixSiderbar? 'ant-fixed-sidemenu' : null]"
+    :class="[theme, 'sider', isMobile ? null : 'shadow', fixSidebar? 'ant-fixed-sidemenu' : null]"
     width="256px"
     :collapsible="collapsible"
     v-model="collapsed"
@@ -47,7 +47,7 @@ export default {
     ...mapState({
       isMobile: state => state.setting.isMobile,
       systemName: state => state.setting.systemName,
-      fixSiderbar: state => state.setting.fixSiderbar
+      fixSidebar: state => state.setting.fixSidebar
     })
   },
   methods: {

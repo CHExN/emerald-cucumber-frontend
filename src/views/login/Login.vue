@@ -128,7 +128,7 @@ export default {
       setTheme: 'setting/setTheme',
       setLayout: 'setting/setLayout',
       setMultipage: 'setting/setMultipage',
-      fixSiderbar: 'setting/fixSiderbar',
+      fixSidebar: 'setting/fixSidebar',
       fixHeader: 'setting/fixHeader',
       setColor: 'setting/setColor'
     }),
@@ -140,7 +140,7 @@ export default {
       this.setTheme(data.config.theme)
       this.setLayout(data.config.layout)
       this.setMultipage(data.config.multiPage === '1')
-      this.fixSiderbar(data.config.fixSiderbar === '1')
+      this.fixSidebar(data.config.fixSidebar === '1')
       this.fixHeader(data.config.fixHeader === '1')
       this.setColor(data.config.color)
     }

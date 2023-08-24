@@ -6,7 +6,7 @@
     placement="right"
     :closable="false"
     @close="onClose"
-    :visible="userAddVisiable"
+    :visible="userAddVisible"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
     <a-form :form="form">
       <a-form-item label='用户名'
@@ -39,8 +39,8 @@
           mode="multiple"
           :allowClear="true"
           style="width: 100%"
-          v-decorator="['roleId',{rules: [{ required: true, message: '请选择角色' }]}]">
-          <a-select-option v-for="r in roleData" :key="r.roleId">{{r.roleName}}</a-select-option>
+          v-decorator="['roleIds',{rules: [{ required: true, message: '请选择角色' }]}]">
+          <a-select-option v-for="r in roleData" :key="r.id">{{r.roleName}}</a-select-option>
         </a-select>
       </a-form-item>
       <a-form-item label='部门' v-bind="formItemLayout">
@@ -60,9 +60,9 @@
       </a-form-item>
       <a-form-item label='性别' v-bind="formItemLayout">
         <a-radio-group
-          v-decorator="['ssex',{rules: [{ required: true, message: '请选择性别' }]}]">
-          <a-radio value="0">男</a-radio>
-          <a-radio value="1">女</a-radio>
+          v-decorator="['gender',{rules: [{ required: true, message: '请选择性别' }]}]">
+          <a-radio value="1">男</a-radio>
+          <a-radio value="0">女</a-radio>
           <a-radio value="2">保密</a-radio>
         </a-radio-group>
       </a-form-item>
@@ -83,7 +83,7 @@ const formItemLayout = {
 export default {
   name: 'UserAdd',
   props: {
-    userAddVisiable: {
+    userAddVisible: {
       default: false
     }
   },
@@ -122,7 +122,6 @@ export default {
         if (!err && this.validateStatus === 'success') {
           this.setUserFields()
           this.loading = true
-          this.user.roleId = this.user.roleId.join(',')
           this.$post('user', {
             ...this.user
           }).then((r) => {
@@ -162,28 +161,20 @@ export default {
       }
     },
     setUserFields () {
-      let values = this.form.getFieldsValue(['username', 'password', 'email', 'mobile', 'roleId', 'deptId', 'status', 'ssex'])
+      let values = this.form.getFieldsValue(['username', 'password', 'email', 'mobile', 'roleIds', 'deptId', 'status', 'gender'])
       if (typeof values !== 'undefined') {
         Object.keys(values).forEach(_key => { this.user[_key] = values[_key] })
       }
-      // this.user.username = values.username
-      // this.user.password = values.password
-      // this.user.email = values.email
-      // this.user.mobile = values.mobile
-      // this.user.roleId = values.roleId
-      // this.user.deptId = values.deptId
-      // this.user.status = values.status
-      // this.user.ssex = values.ssex
     }
   },
   watch: {
-    userAddVisiable () {
-      if (this.userAddVisiable) {
+    userAddVisible () {
+      if (this.userAddVisible) {
         this.$get('role').then((r) => {
-          this.roleData = r.data.rows
+          this.roleData = r.data.data.records
         })
         this.$get('dept').then((r) => {
-          this.deptTreeData = r.data.rows.children
+          this.deptTreeData = r.data.data.records.children
         })
       }
     }

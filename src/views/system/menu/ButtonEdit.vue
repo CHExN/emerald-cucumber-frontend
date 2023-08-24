@@ -6,7 +6,7 @@
     placement="right"
     :closable="false"
     @close="onClose"
-    :visible="buttonEditVisiable"
+    :visible="buttonEditVisible"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
     <a-form :form="form">
       <a-form-item label='按钮名称' v-bind="formItemLayout">
@@ -62,7 +62,7 @@ const formItemLayout = {
 export default {
   name: 'ButtonEdit',
   props: {
-    buttonEditVisiable: {
+    buttonEditVisible: {
       default: false
     }
   },
@@ -130,7 +130,7 @@ export default {
           let button = this.form.getFieldsValue()
           button.parentId = checkedArr[0]
           // 0 表示菜单 1 表示按钮
-          button.type = '1'
+          button.type = 1
           button.menuId = this.button.menuId
           this.$put('menu', {
             ...button
@@ -145,13 +145,13 @@ export default {
     }
   },
   watch: {
-    buttonEditVisiable () {
-      if (this.buttonEditVisiable) {
-        this.$get('menu', {
-          type: '0'
+    buttonEditVisible () {
+      if (this.buttonEditVisible) {
+        this.$post('menu', {
+          type: 0
         }).then((r) => {
-          this.menuTreeData = r.data.rows.children
-          this.allTreeKeys = r.data.ids
+          this.menuTreeData = r.data.data.records.children
+          this.allTreeKeys = r.data.data.ids
           this.menuTreeKey = +new Date()
         })
       }

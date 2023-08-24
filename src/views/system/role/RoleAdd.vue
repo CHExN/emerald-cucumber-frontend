@@ -6,7 +6,7 @@
     placement="right"
     :closable="false"
     @close="onClose"
-    :visible="roleAddVisiable"
+    :visible="roleAddVisible"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
     <a-form :form="form">
       <a-form-item label='角色名称'
@@ -69,7 +69,7 @@ const formItemLayout = {
 export default {
   name: 'RoleAdd',
   props: {
-    roleAddVisiable: {
+    roleAddVisible: {
       default: false
     }
   },
@@ -86,7 +86,7 @@ export default {
       role: {
         roleName: '',
         remark: '',
-        menuId: ''
+        menuIds: []
       },
       checkedKeys: [],
       expandedKeys: [],
@@ -145,7 +145,7 @@ export default {
           if (!err) {
             this.setRoleFields()
             this.loading = true
-            this.role.menuId = checkedArr.join(',')
+            this.role.menuIds = checkedArr
             this.$post('role', {
               ...this.role
             }).then((r) => {
@@ -190,11 +190,11 @@ export default {
     }
   },
   watch: {
-    roleAddVisiable () {
-      if (this.roleAddVisiable) {
-        this.$get('menu').then((r) => {
-          this.menuTreeData = r.data.rows.children
-          this.allTreeKeys = r.data.ids
+    roleAddVisible () {
+      if (this.roleAddVisible) {
+        this.$post('menu').then((r) => {
+          this.menuTreeData = r.data.data.records.children
+          this.allTreeKeys = r.data.data.ids
         })
       }
     }

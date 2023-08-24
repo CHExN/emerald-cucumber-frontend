@@ -9,7 +9,7 @@
                 label="键"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.keyy"/>
+                <a-input v-model="queryParams.key"/>
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24" >
@@ -17,7 +17,7 @@
                 label="值"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.valuee"/>
+                <a-input v-model="queryParams.value"/>
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24" >
@@ -91,14 +91,14 @@
     <dict-add
       @close="handleDictAddClose"
       @success="handleDictAddSuccess"
-     :dictAddVisiable="dictAddVisiable">
+     :dictAddVisible="dictAddVisible">
     </dict-add>
     <!-- 修改字典 -->
     <dict-edit
       ref="dictEdit"
       @close="handleDictEditClose"
       @success="handleDictEditSuccess"
-      :dictEditVisiable="dictEditVisiable">
+      :dictEditVisible="dictEditVisible">
     </dict-edit>
   </a-card>
 </template>
@@ -125,8 +125,8 @@ export default {
         showTotal: (total, range) => `显示 ${range[0]} ~ ${range[1]} 条记录，共 ${total} 条记录`
       },
       queryParams: {},
-      dictAddVisiable: false,
-      dictEditVisiable: false,
+      dictAddVisible: false,
+      dictEditVisible: false,
       loading: false
     }
   },
@@ -134,10 +134,10 @@ export default {
     columns () {
       return [{
         title: '键',
-        dataIndex: 'keyy'
+        dataIndex: 'key'
       }, {
         title: '值',
-        dataIndex: 'valuee'
+        dataIndex: 'value'
       }, {
         title: '表名',
         dataIndex: 'tableName'
@@ -167,27 +167,27 @@ export default {
       }
     },
     handleDictAddSuccess () {
-      this.dictAddVisiable = false
+      this.dictAddVisible = false
       this.$message.success('新增字典成功')
       this.search()
     },
     handleDictAddClose () {
-      this.dictAddVisiable = false
+      this.dictAddVisible = false
     },
     add () {
-      this.dictAddVisiable = true
+      this.dictAddVisible = true
     },
     handleDictEditSuccess () {
-      this.dictEditVisiable = false
+      this.dictEditVisible = false
       this.$message.success('修改字典成功')
       this.search()
     },
     handleDictEditClose () {
-      this.dictEditVisiable = false
+      this.dictEditVisible = false
     },
     edit (record) {
       this.$refs.dictEdit.setFormValues(record)
-      this.dictEditVisiable = true
+      this.dictEditVisible = true
     },
     batchDelete () {
       if (!this.selectedRowKeys.length) {
@@ -250,6 +250,7 @@ export default {
         this.$refs.TableInfo.pagination.pageSize = this.paginationInfo.pageSize
         params.pageSize = this.paginationInfo.pageSize
         params.pageNum = this.paginationInfo.current
+        params.totalRow = this.paginationInfo.total
       } else {
         // 如果分页信息为空，则设置为默认值
         params.pageSize = this.pagination.defaultPageSize
@@ -259,11 +260,17 @@ export default {
         ...params
       }).then((r) => {
         let data = r.data
+        console.log(data)
+        if (data.code === 1) {
+          this.$message.error(data.message)
+          return
+        }
+        data = data.data
         const pagination = { ...this.pagination }
-        pagination.total = data.total
-        this.loading = false
-        this.dataSource = data.rows
+        pagination.total = data.totalRow
+        this.dataSource = data.records
         this.pagination = pagination
+        this.loading = false
       })
     }
   }

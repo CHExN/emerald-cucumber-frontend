@@ -6,7 +6,7 @@
     placement="right"
     :closable="false"
     @close="onClose"
-    :visible="profileEditVisiable"
+    :visible="profileEditVisible"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
     <a-form :form="form">
       <a-form-item label='邮箱' v-bind="formItemLayout">
@@ -37,12 +37,12 @@
       <a-form-item label='性别' v-bind="formItemLayout">
         <a-radio-group
           v-decorator="[
-            'ssex',
+            'gender',
             {rules: [{ required: true, message: '请选择性别' }]}
           ]">
-          <a-radio value="0">男</a-radio>
-          <a-radio value="1">女</a-radio>
-          <a-radio value="2">保密</a-radio>
+          <a-radio value=1>男</a-radio>
+          <a-radio value=0>女</a-radio>
+          <a-radio value=2>保密</a-radio>
         </a-radio-group>
       </a-form-item>
       <a-form-item label='描述' v-bind="formItemLayout">
@@ -73,7 +73,7 @@ const formItemLayout = {
 }
 export default {
   props: {
-    profileEditVisiable: {
+    profileEditVisible: {
       default: false
     }
   },
@@ -84,7 +84,7 @@ export default {
       deptTreeData: [],
       userDept: [],
       userId: '',
-      roleId: '',
+      roleIds: [],
       status: '',
       username: '',
       loading: false
@@ -106,7 +106,7 @@ export default {
     },
     setFormValues ({...user}) {
       this.userId = user.userId
-      let fields = ['email', 'ssex', 'description', 'mobile']
+      let fields = ['email', 'gender', 'description', 'mobile']
       Object.keys(user).forEach((key) => {
         if (fields.indexOf(key) !== -1) {
           this.form.getFieldDecorator(key)
@@ -119,7 +119,7 @@ export default {
         this.userDept = [user.deptId]
       }
       this.status = user.status
-      this.roleId = user.roleId
+      this.roleIds = user.roleIds
       this.username = user.username
     },
     onDeptChange (value) {
@@ -132,7 +132,7 @@ export default {
           let user = this.form.getFieldsValue()
           user.userId = this.userId
           user.deptId = this.userDept
-          user.roleId = this.roleId
+          user.roleIds = this.roleIds
           user.status = this.status
           user.username = this.username
           this.$put('user/profile', {
@@ -152,10 +152,10 @@ export default {
     }
   },
   watch: {
-    profileEditVisiable () {
-      if (this.profileEditVisiable) {
+    profileEditVisible () {
+      if (this.profileEditVisible) {
         this.$get('dept').then((r) => {
-          this.deptTreeData = r.data.rows.children
+          this.deptTreeData = r.data.data.records.children
         })
       }
     }

@@ -30,7 +30,7 @@
         </a-list-item>
         <a-list-item>
           固定侧边栏
-          <a-switch :checked="fixedSiderbar" slot="actions" size="small" @change="fixSiderbar"/>
+          <a-switch :checked="fixedSiderbar" slot="actions" size="small" @change="fixSidebar"/>
         </a-list-item>
         <a-list-item>
           多页签模式
@@ -61,7 +61,7 @@ export default {
       multipage: state => state.setting.multipage,
       theme: state => state.setting.theme,
       colorList: state => state.setting.colorList,
-      fixedSiderbar: state => state.setting.fixSiderbar,
+      fixedSiderbar: state => state.setting.fixSidebar,
       fixedHeader: state => state.setting.fixHeader,
       layout: state => state.setting.layout,
       color: state => state.setting.color,
@@ -99,8 +99,8 @@ export default {
     setMultipage (checked) {
       this.$store.commit('setting/setMultipage', checked)
     },
-    fixSiderbar (checked) {
-      this.$store.commit('setting/fixSiderbar', checked)
+    fixSidebar (checked) {
+      this.$store.commit('setting/fixSidebar', checked)
     },
     fixHeader (checked) {
       this.$store.commit('setting/fixHeader', checked)

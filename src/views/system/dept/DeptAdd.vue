@@ -6,7 +6,7 @@
     placement="right"
     :closable="false"
     @close="onClose"
-    :visible="deptAddVisiable"
+    :visible="deptAddVisible"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
     <a-form :form="form">
       <a-form-item label='部门名称' v-bind="formItemLayout">
@@ -49,7 +49,7 @@ const formItemLayout = {
 export default {
   name: 'DeptAdd',
   props: {
-    deptAddVisiable: {
+    deptAddVisible: {
       default: false
     }
   },
@@ -117,10 +117,10 @@ export default {
     }
   },
   watch: {
-    deptAddVisiable () {
-      if (this.deptAddVisiable) {
+    deptAddVisible () {
+      if (this.deptAddVisible) {
         this.$get('dept').then((r) => {
-          this.deptTreeData = r.data.rows.children
+          this.deptTreeData = r.data.data.records.children
         })
       }
     }

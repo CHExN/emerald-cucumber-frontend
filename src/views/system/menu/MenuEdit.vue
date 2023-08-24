@@ -6,7 +6,7 @@
     placement="right"
     :closable="false"
     @close="onClose"
-    :visible="menuEditVisiable"
+    :visible="menuEditVisible"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
     <a-form :form="form">
       <a-form-item label='菜单名称' v-bind="formItemLayout">
@@ -97,7 +97,7 @@ export default {
   name: 'MenuEdit',
   components: {Icons},
   props: {
-    menuEditVisiable: {
+    menuEditVisible: {
       default: false
     }
   },
@@ -202,7 +202,7 @@ export default {
             menu.parentId = ''
           }
           // 0 表示菜单 1 表示按钮
-          menu.type = '0'
+          menu.type = 0
           this.$put('menu', {
             ...menu
           }).then(() => {
@@ -216,13 +216,13 @@ export default {
     }
   },
   watch: {
-    menuEditVisiable () {
-      if (this.menuEditVisiable) {
-        this.$get('menu', {
-          type: '0'
+    menuEditVisible () {
+      if (this.menuEditVisible) {
+        this.$post('menu', {
+          type: 0
         }).then((r) => {
-          this.menuTreeData = r.data.rows.children
-          this.allTreeKeys = r.data.ids
+          this.menuTreeData = r.data.data.records.children
+          this.allTreeKeys = r.data.data.ids
           this.menuTreeKey = +new Date()
         })
       }

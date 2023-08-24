@@ -62,7 +62,7 @@
       <!-- 表格区域 -->
       <a-table ref="TableInfo"
                :columns="columns"
-               :rowKey="record => record.userId"
+               :rowKey="record => record.id"
                :dataSource="dataSource"
                :pagination="pagination"
                :loading="loading"
@@ -88,21 +88,21 @@
     <!-- 用户信息查看 -->
     <user-info
       :userInfoData="userInfo.data"
-      :userInfoVisiable="userInfo.visiable"
+      :userInfoVisible="userInfo.visible"
       @close="handleUserInfoClose">
     </user-info>
     <!-- 新增用户 -->
     <user-add
       @close="handleUserAddClose"
       @success="handleUserAddSuccess"
-      :userAddVisiable="userAdd.visiable">
+      :userAddVisible="userAdd.visible">
     </user-add>
     <!-- 修改用户 -->
     <user-edit
       ref="userEdit"
       @close="handleUserEditClose"
       @success="handleUserEditSuccess"
-      :userEditVisiable="userEdit.visiable">
+      :userEditVisible="userEdit.visible">
     </user-edit>
   </a-card>
 </template>
@@ -121,19 +121,18 @@ export default {
     return {
       advanced: false,
       userInfo: {
-        visiable: false,
+        visible: false,
         data: {}
       },
       userAdd: {
-        visiable: false
+        visible: false
       },
       userEdit: {
-        visiable: false
+        visible: false
       },
       queryParams: {},
       filteredInfo: null,
-      sortedInfo: null,
-      paginationInfo: null,
+      pageSortInfo: {},
       dataSource: [],
       selectedRowKeys: [],
       loading: false,
@@ -149,37 +148,36 @@ export default {
   },
   computed: {
     columns () {
-      let { sortedInfo, filteredInfo } = this
-      sortedInfo = sortedInfo || {}
+      let { filteredInfo, pageSortInfo } = this
       filteredInfo = filteredInfo || {}
       return [{
         title: '用户名',
         dataIndex: 'username',
         sorter: true,
-        sortOrder: sortedInfo.columnKey === 'username' && sortedInfo.order
+        sortOrder: pageSortInfo.sortField === 'username' && pageSortInfo.sortOrder
       }, {
         title: '性别',
-        dataIndex: 'ssex',
+        dataIndex: 'gender',
         customRender: (text, row, index) => {
           switch (text) {
-            case '0':
+            case 1:
               return '男'
-            case '1':
+            case 0:
               return '女'
-            case '2':
+            case 2:
               return '保密'
             default:
               return text
           }
         },
         filters: [
-          { text: '男', value: '0' },
-          { text: '女', value: '1' },
+          { text: '男', value: '1' },
+          { text: '女', value: '0' },
           { text: '保密', value: '2' }
         ],
         filterMultiple: false,
-        filteredValue: filteredInfo.ssex || null,
-        onFilter: (value, record) => record.ssex.includes(value)
+        filteredValue: filteredInfo.gender || null,
+        onFilter: (value, record) => record.gender.toString().includes(value)
       }, {
         title: '邮箱',
         dataIndex: 'email',
@@ -196,9 +194,9 @@ export default {
         dataIndex: 'status',
         customRender: (text, row, index) => {
           switch (text) {
-            case '0':
+            case 0:
               return <a-tag color="red">锁定</a-tag>
-            case '1':
+            case 1:
               return <a-tag color="cyan">有效</a-tag>
             default:
               return text
@@ -210,12 +208,12 @@ export default {
         ],
         filterMultiple: false,
         filteredValue: filteredInfo.status || null,
-        onFilter: (value, record) => record.status.includes(value)
+        onFilter: (value, record) => record.status.toString().includes(value)
       }, {
         title: '创建时间',
         dataIndex: 'createTime',
         sorter: true,
-        sortOrder: sortedInfo.columnKey === 'createTime' && sortedInfo.order
+        sortOrder: pageSortInfo.sortField === 'createTime' && pageSortInfo.sortOrder
       }, {
         title: '操作',
         dataIndex: 'operation',
@@ -233,47 +231,47 @@ export default {
     toggleAdvanced () {
       this.advanced = !this.advanced
       if (!this.advanced) {
-        this.queryParams.createTimeFrom = ''
-        this.queryParams.createTimeTo = ''
+        this.queryParams.createTimeStart = ''
+        this.queryParams.createTimeEnd = ''
       }
     },
     view (record) {
       this.userInfo.data = record
-      this.userInfo.visiable = true
+      this.userInfo.visible = true
     },
     add () {
-      this.userAdd.visiable = true
+      this.userAdd.visible = true
     },
     handleUserAddClose () {
-      this.userAdd.visiable = false
+      this.userAdd.visible = false
     },
     handleUserAddSuccess () {
-      this.userAdd.visiable = false
+      this.userAdd.visible = false
       this.$message.success('新增用户成功，初始密码为1234qwer')
       this.search()
     },
     edit (record) {
       this.$refs.userEdit.setFormValues(record)
-      this.userEdit.visiable = true
+      this.userEdit.visible = true
     },
     handleUserEditClose () {
-      this.userEdit.visiable = false
+      this.userEdit.visible = false
     },
     handleUserEditSuccess () {
-      this.userEdit.visiable = false
+      this.userEdit.visible = false
       this.$message.success('修改用户成功')
       this.search()
     },
     handleUserInfoClose () {
-      this.userInfo.visiable = false
+      this.userInfo.visible = false
     },
     handleDeptChange (value) {
       this.queryParams.deptId = value || ''
     },
     handleDateChange (value) {
       if (value) {
-        this.queryParams.createTimeFrom = value[0]
-        this.queryParams.createTimeTo = value[1]
+        this.queryParams.createTimeStart = value[0]
+        this.queryParams.createTimeEnd = value[1]
       }
     },
     batchDelete () {
@@ -289,7 +287,7 @@ export default {
         onOk () {
           let userIds = []
           let selectedRowKeysStr = ',' + that.selectedRowKeys.join(',') + ','
-          userIds.push(that.dataSource.filter(f => { return selectedRowKeysStr.indexOf(',' + f.userId + ',') > -1 }).map(m => { return m.userId }))
+          userIds.push(that.dataSource.filter(f => { return selectedRowKeysStr.indexOf(',' + f.id + ',') > -1 }).map(m => { return m.id }))
           that.$delete('user/' + userIds.join(',')).then(() => {
             that.$message.success('删除成功')
             that.selectedRowKeys = []
@@ -314,7 +312,7 @@ export default {
         onOk () {
           let usernames = []
           let selectedRowKeysStr = ',' + that.selectedRowKeys.join(',') + ','
-          usernames.push(that.dataSource.filter(f => { return selectedRowKeysStr.indexOf(',' + f.userId + ',') > -1 }).map(m => { return m.username }))
+          usernames.push(that.dataSource.filter(f => { return selectedRowKeysStr.indexOf(',' + f.id + ',') > -1 }).map(m => { return m.username }))
           that.$put('user/password/reset', {
             usernames: usernames.join(',')
           }).then(() => {
@@ -328,48 +326,30 @@ export default {
       })
     },
     exportExcel () {
-      let {sortedInfo, filteredInfo} = this
-      let sortField, sortOrder
-      // 获取当前列的排序和列的过滤规则
-      if (sortedInfo) {
-        sortField = sortedInfo.field
-        sortOrder = sortedInfo.order
-      }
       this.$export('user/excel', {
-        sortField: sortField,
-        sortOrder: sortOrder,
         ...this.queryParams,
-        ...filteredInfo
-      })
+        ...this.handleFilter(this.filteredInfo)
+      }, {...this.pageSortInfo})
     },
     search () {
-      let {sortedInfo, filteredInfo} = this
-      let sortField, sortOrder
-      // 获取当前列的排序和列的过滤规则
-      if (sortedInfo) {
-        sortField = sortedInfo.field
-        sortOrder = sortedInfo.order
-      }
       this.fetch({
-        sortField: sortField,
-        sortOrder: sortOrder,
         ...this.queryParams,
-        ...filteredInfo
+        ...this.handleFilter(this.filteredInfo)
       })
     },
     reset () {
       // 取消选中
       this.selectedRowKeys = []
       // 重置分页
-      this.$refs.TableInfo.pagination.current = this.pagination.defaultCurrent
-      if (this.paginationInfo) {
-        this.paginationInfo.current = this.pagination.defaultCurrent
-        this.paginationInfo.pageSize = this.pagination.defaultPageSize
+      this.pagination.current = this.pagination.defaultCurrent
+      this.pageSortInfo = {
+        pageNum: this.pagination.defaultCurrent,
+        pageSize: this.pagination.defaultPageSize
       }
+      // this.pageSortInfo.pageNum = this.pagination.defaultCurrent
+      // this.pageSortInfo.pageSize = this.pagination.defaultPageSize
       // 重置列过滤器规则
       this.filteredInfo = null
-      // 重置列排序规则
-      this.sortedInfo = null
       // 重置查询参数
       this.queryParams = {}
       // 清空部门树选择
@@ -382,41 +362,81 @@ export default {
     },
     handleTableChange (pagination, filters, sorter) {
       // 将这三个参数赋值给Vue data，用于后续使用
-      this.paginationInfo = pagination
       this.filteredInfo = filters
-      this.sortedInfo = sorter
+      this.pageSortInfo = this.handlePageSort(pagination, sorter)
 
-      this.userInfo.visiable = false
+      this.userInfo.visible = false
       this.fetch({
-        sortField: sorter.field,
-        sortOrder: sorter.order,
         ...this.queryParams,
-        ...filters
+        ...this.handleFilter(this.filteredInfo)
       })
     },
-    fetch (params = {}) {
+
+    // TODO独立出来做成通用方法
+    // 处理分页排序
+    handlePageSort (pagination, sorter) {
+      // 分页信息只需要 {当前页，每页条数，总条数}
+      let {current, pageSize, total} = pagination
+      // 排序信息只需要 {排序字段，排序方式}
+      let {field, order} = sorter
+
+      // 将分页信息和排序信息合并到一起，并把内部key值改为后端接收的参数名
+      return {
+        pageNum: current,
+        pageSize: pageSize,
+        totalRow: total,
+        sortField: field,
+        sortOrder: order
+      }
+    },
+
+    // 处理过滤字段
+    handleFilter (filters) {
+      // 将filters内部的value值都取[0]
+      let filteredInfo = {}
+      for (let key in filters) {
+        if (filters[key] == null) continue
+        filteredInfo[key] = filters[key][0]
+      }
+      return filteredInfo
+    },
+
+    fetch (body = {}) {
       // 显示loading
       this.loading = true
-      if (this.paginationInfo) {
-        // 如果分页信息不为空，则设置表格当前第几页，每页条数，并设置查询分页参数
-        this.$refs.TableInfo.pagination.current = this.paginationInfo.current
-        this.$refs.TableInfo.pagination.pageSize = this.paginationInfo.pageSize
-        params.pageSize = this.paginationInfo.pageSize
-        params.pageNum = this.paginationInfo.current
+
+      // 控制分页组件显示
+      if (this.pageSortInfo.pageNum && this.pageSortInfo.pageSize) {
+        this.pagination.current = this.pageSortInfo.pageNum
+        this.pagination.pageSize = this.pageSortInfo.pageSize
       } else {
-        // 如果分页信息为空，则设置为默认值
-        params.pageSize = this.pagination.defaultPageSize
-        params.pageNum = this.pagination.defaultCurrent
+        this.pageSortInfo.pageNum = this.pagination.defaultCurrent
+        this.pageSortInfo.pageSize = this.pagination.defaultPageSize
       }
-      this.$get('user', {
-        ...params
-      }).then((r) => {
+      // body内有查询参数时，删除数据总量字段
+      if (Object.keys(body).length > 0) {
+        delete this.pageSortInfo.totalRow
+      }
+
+      this.$post('user/page', body, this.pageSortInfo).then((r) => {
         let data = r.data
-        const pagination = { ...this.pagination }
-        pagination.total = data.total
-        this.dataSource = data.rows
-        this.pagination = pagination
-        // 数据加载完毕，关闭loading
+        if (data.code === 1) {
+          this.$message.error(data.message)
+          return
+        }
+        data = data.data
+
+        // 如果当前页无数据，但总条数大于0，则自动计算最后一页重新查询
+        if (data.records.length === 0 && data.totalRow > 0) {
+          this.pageSortInfo.pageNum = Math.ceil(data.totalRow / data.pageSize) || 1
+          return this.fetch(body)
+        }
+
+        // 将后端返回的数据总量存入pageSortInfo，查询的时候自动带上，提高程序的查询效率。
+        // 因为在一般的分页场景中，只有第一页的时候有必要去查询数据总量，第二页以后是没必要的（因为第一页已经拿到总量了），因此， 后续无参情况下再次查询时可以带入 totalRow
+        this.pageSortInfo.totalRow = data.totalRow
+        this.pagination = { ...this.pagination, total: data.totalRow }
+        this.dataSource = data.records
         this.loading = false
       })
     }

@@ -6,7 +6,7 @@
     placement="right"
     :closable="false"
     @close="onClose"
-    :visible="userEditVisiable"
+    :visible="userEditVisible"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
     <a-form :form="form">
       <a-form-item label='用户名' v-bind="formItemLayout">
@@ -34,10 +34,10 @@
           :allowClear="true"
           style="width: 100%"
           v-decorator="[
-            'roleId',
+            'roleIds',
             {rules: [{ required: true, message: '请选择角色' }]}
           ]">
-          <a-select-option v-for="r in roleData" :key="r.roleId.toString()">{{r.roleName}}</a-select-option>
+          <a-select-option v-for="r in roleData" :key="r.id">{{r.roleName}}</a-select-option>
         </a-select>
       </a-form-item>
       <a-form-item label='部门' v-bind="formItemLayout">
@@ -62,11 +62,11 @@
       <a-form-item label='性别' v-bind="formItemLayout">
         <a-radio-group
           v-decorator="[
-            'ssex',
+            'gender',
             {rules: [{ required: true, message: '请选择性别' }]}
           ]">
-          <a-radio value="0">男</a-radio>
-          <a-radio value="1">女</a-radio>
+          <a-radio value="1">男</a-radio>
+          <a-radio value="0">女</a-radio>
           <a-radio value="2">保密</a-radio>
         </a-radio-group>
       </a-form-item>
@@ -89,7 +89,7 @@ const formItemLayout = {
 export default {
   name: 'UserEdit',
   props: {
-    userEditVisiable: {
+    userEditVisible: {
       default: false
     }
   },
@@ -100,7 +100,7 @@ export default {
       deptTreeData: [],
       roleData: [],
       userDept: [],
-      userId: '',
+      id: '',
       loading: false
     }
   },
@@ -119,8 +119,8 @@ export default {
       this.$emit('close')
     },
     setFormValues ({...user}) {
-      this.userId = user.userId
-      let fields = ['username', 'email', 'status', 'ssex', 'mobile']
+      this.id = user.id
+      let fields = ['username', 'email', 'status', 'gender', 'mobile']
       Object.keys(user).forEach((key) => {
         if (fields.indexOf(key) !== -1) {
           this.form.getFieldDecorator(key)
@@ -129,10 +129,10 @@ export default {
           this.form.setFieldsValue(obj)
         }
       })
-      if (user.roleId) {
-        this.form.getFieldDecorator('roleId')
+      if (user.roleIds) {
+        this.form.getFieldDecorator('roleIds')
         let roleArr = user.roleId.split(',')
-        this.form.setFieldsValue({'roleId': roleArr})
+        this.form.setFieldsValue({'roleIds': roleArr})
       }
       if (user.deptId) {
         this.userDept = [user.deptId]
@@ -146,8 +146,7 @@ export default {
         if (!err) {
           this.loading = true
           let user = this.form.getFieldsValue()
-          user.roleId = user.roleId.join(',')
-          user.userId = this.userId
+          user.id = this.id
           user.deptId = this.userDept
           this.$put('user', {
             ...user
@@ -168,13 +167,13 @@ export default {
     }
   },
   watch: {
-    userEditVisiable () {
-      if (this.userEditVisiable) {
+    userEditVisible () {
+      if (this.userEditVisible) {
         this.$get('role').then((r) => {
-          this.roleData = r.data.rows
+          this.roleData = r.data.data.records
         })
         this.$get('dept').then((r) => {
-          this.deptTreeData = r.data.rows.children
+          this.deptTreeData = r.data.data.records.children
         })
       }
     }

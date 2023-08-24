@@ -23,7 +23,7 @@ export default {
   },
   mounted () {
     this.$get('dept').then((r) => {
-      this.deptTreeData = r.data.rows.children
+      this.deptTreeData = r.data.data.records.children
     })
   },
   watch: {

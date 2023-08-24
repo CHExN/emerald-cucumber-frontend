@@ -56,7 +56,7 @@
         <a-button v-hasPermission="['job:delete']" @click="batchDelete">删除</a-button>
         <a-dropdown v-hasPermission="['job:export']">
           <a-menu slot="overlay">
-            <a-menu-item key="export-data" @click="exprotExccel">导出Excel</a-menu-item>
+            <a-menu-item key="export-data" @click="exportExcel">导出Excel</a-menu-item>
           </a-menu>
           <a-button>
             更多操作 <a-icon type="down" />
@@ -66,7 +66,7 @@
       <!-- 表格区域 -->
       <a-table ref="TableInfo"
                :columns="columns"
-               :rowKey="record => record.jobId"
+               :rowKey="record => record.id"
                :dataSource="dataSource"
                :pagination="pagination"
                :loading="loading"
@@ -99,10 +99,10 @@
               <a-menu-item v-hasPermission="['job:run']">
                 <a href="javascript:void(0)" @click="runJob(record)">立即执行</a>
               </a-menu-item>
-              <a-menu-item v-hasPermission="['job:pause']" v-if="record.status === '0'">
+              <a-menu-item v-hasPermission="['job:pause']" v-if="record.status === 0">
                 <a href="javascript:void(0)" @click="pauseJob(record)">暂停任务</a>
               </a-menu-item>
-              <a-menu-item v-hasPermission="['job:resume']" v-if="record.status === '1'">
+              <a-menu-item v-hasPermission="['job:resume']" v-if="record.status === 1">
                 <a href="javascript:void(0)" @click="resumeJob(record)">恢复任务</a>
               </a-menu-item>
             </a-menu>
@@ -115,14 +115,14 @@
     <job-add
       @success="handleJobAddSuccess"
       @close="handleJobAddClose"
-      :jobAddVisiable="jobAddVisiable">
+      :jobAddVisible="jobAddVisible">
     </job-add>
     <!-- 修改任务 -->
     <job-edit
       ref="jobEdit"
       @success="handleJobEditSuccess"
       @close="handleJobEditClose"
-      :jobEditVisiable="jobEditVisiable">
+      :jobEditVisible="jobEditVisible">
     </job-edit>
   </a-card>
 </template>
@@ -153,8 +153,8 @@ export default {
         showTotal: (total, range) => `显示 ${range[0]} ~ ${range[1]} 条记录，共 ${total} 条记录`
       },
       loading: false,
-      jobAddVisiable: false,
-      jobEditVisiable: false
+      jobAddVisible: false,
+      jobEditVisible: false
     }
   },
   computed: {
@@ -184,9 +184,9 @@ export default {
         dataIndex: 'status',
         customRender: (text, row, index) => {
           switch (text) {
-            case '0':
+            case 0:
               return <a-tag color="green">正常</a-tag>
-            case '1':
+            case 1:
               return <a-tag color="orange">暂停</a-tag>
             default:
               return text
@@ -198,7 +198,7 @@ export default {
         ],
         filterMultiple: false,
         filteredValue: filteredInfo.status || null,
-        onFilter: (value, record) => record.status.includes(value)
+        onFilter: (value, record) => value.includes(record.status)
       }, {
         title: '创建时间',
         dataIndex: 'createTime',
@@ -223,43 +223,42 @@ export default {
     toggleAdvanced () {
       this.advanced = !this.advanced
       if (!this.advanced) {
-        this.queryParams.createTimeFrom = ''
-        this.queryParams.createTimeTo = ''
+        this.queryParams.createTimeStart = ''
+        this.queryParams.createTimeEnd = ''
         this.queryParams.params = ''
       }
     },
     handleDateChange (value) {
       if (value) {
-        this.queryParams.createTimeFrom = value[0]
-        this.queryParams.createTimeTo = value[1]
+        this.queryParams.createTimeStart = value[0]
+        this.queryParams.createTimeEnd = value[1]
       }
     },
     handleJobAddSuccess () {
-      this.jobAddVisiable = false
+      this.jobAddVisible = false
       this.$message.success('新增定时任务成功')
       this.search()
     },
     handleJobAddClose () {
-      this.jobAddVisiable = false
+      this.jobAddVisible = false
     },
     add () {
-      this.jobAddVisiable = true
+      this.jobAddVisible = true
     },
     handleJobEditSuccess () {
-      this.jobEditVisiable = false
+      this.jobEditVisible = false
       this.$message.success('修改定时任务成功')
       this.search()
     },
     handleJobEditClose () {
-      this.jobEditVisiable = false
+      this.jobEditVisible = false
     },
     edit (record) {
       this.$refs.jobEdit.setFormValues(record)
-      this.jobEditVisiable = true
+      this.jobEditVisible = true
     },
     runJob (record) {
-      let jobId = record.jobId
-      this.$get('job/run/' + jobId).then(() => {
+      this.$patch('job/run/' + record.id).then(() => {
         this.$message.success('执行定时任务成功')
         this.search()
       }).catch(() => {
@@ -267,8 +266,7 @@ export default {
       })
     },
     pauseJob (record) {
-      let jobId = record.jobId
-      this.$get('job/pause/' + jobId).then(() => {
+      this.$patch('job/pause/' + record.id).then(() => {
         this.$message.success('暂停定时任务成功')
         this.search()
       }).catch(() => {
@@ -276,8 +274,7 @@ export default {
       })
     },
     resumeJob (record) {
-      let jobId = record.jobId
-      this.$get('job/resume/' + jobId).then(() => {
+      this.$patch('job/resume/' + record.id).then(() => {
         this.$message.success('恢复定时任务成功')
         this.search()
       }).catch(() => {
@@ -307,7 +304,7 @@ export default {
         }
       })
     },
-    exprotExccel () {
+    exportExcel () {
       let {sortedInfo, filteredInfo} = this
       let sortField, sortOrder
       // 获取当前列的排序和列的过滤规则
@@ -376,6 +373,7 @@ export default {
         this.$refs.TableInfo.pagination.pageSize = this.paginationInfo.pageSize
         params.pageSize = this.paginationInfo.pageSize
         params.pageNum = this.paginationInfo.current
+        params.totalRow = this.paginationInfo.total
       } else {
         // 如果分页信息为空，则设置为默认值
         params.pageSize = this.pagination.defaultPageSize
@@ -385,11 +383,14 @@ export default {
         ...params
       }).then((r) => {
         let data = r.data
-        const pagination = { ...this.pagination }
-        pagination.total = data.total
+        if (data.code === 1) {
+          this.$message.error(data.message)
+          return
+        }
+        data = data.data
+        this.pagination.total = data.totalRow
+        this.dataSource = data.records
         this.loading = false
-        this.dataSource = data.rows
-        this.pagination = pagination
       })
     }
   }

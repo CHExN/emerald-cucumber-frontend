@@ -6,7 +6,7 @@
     placement="right"
     :closable="false"
     @close="onClose"
-    :visible="jobAddVisiable"
+    :visible="jobAddVisible"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
     <a-form :form="form">
       <a-form-item label='Bean名称' v-bind="formItemLayout">
@@ -65,7 +65,7 @@ const formItemLayout = {
 export default {
   name: 'JobAdd',
   props: {
-    jobAddVisiable: {
+    jobAddVisible: {
       default: false
     }
   },

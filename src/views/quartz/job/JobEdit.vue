@@ -6,7 +6,7 @@
     placement="right"
     :closable="false"
     @close="onClose"
-    :visible="jobEditVisiable"
+    :visible="jobEditVisible"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
     <a-form :form="form">
       <a-form-item label='Bean名称' v-bind="formItemLayout">
@@ -65,7 +65,7 @@ const formItemLayout = {
 export default {
   name: 'JobEdit',
   props: {
-    jobEditVisiable: {
+    jobEditVisible: {
       default: false
     }
   },
@@ -94,7 +94,7 @@ export default {
       window.open('http://cron.qqe2.com/')
     },
     setFormValues ({...job}) {
-      this.job.jobId = job.jobId
+      this.job.id = job.id
       this.job.status = job.status
       let fields = ['beanName', 'methodName', 'params', 'cronExpression', 'remark']
       Object.keys(job).forEach((key) => {
@@ -113,7 +113,7 @@ export default {
       this.form.validateFields((err, values) => {
         if (!err) {
           let job = this.form.getFieldsValue()
-          job.jobId = this.job.jobId
+          job.id = this.job.id
           job.status = this.job.status
           this.$put('job', {
             ...job

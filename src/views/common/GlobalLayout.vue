@@ -44,7 +44,7 @@ export default {
   },
   computed: {
     paddingLeft () {
-      return this.fixSiderbar && this.layout === 'side' && !this.isMobile ? `${this.sidebarOpened ? 256 : 80}px` : '0'
+      return this.fixSidebar && this.layout === 'side' && !this.isMobile ? `${this.sidebarOpened ? 256 : 80}px` : '0'
     },
     ...mapState({
       sidebarOpened: state => state.setting.sidebar.opened,
@@ -52,7 +52,7 @@ export default {
       theme: state => state.setting.theme,
       layout: state => state.setting.layout,
       copyright: state => state.setting.copyright,
-      fixSiderbar: state => state.setting.fixSiderbar,
+      fixSidebar: state => state.setting.fixSidebar,
       fixHeader: state => state.setting.fixHeader,
       settingBar: state => state.setting.settingBar.opened
     })

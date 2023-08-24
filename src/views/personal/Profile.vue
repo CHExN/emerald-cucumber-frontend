@@ -32,7 +32,7 @@
       ref="updateProfile"
       @success="handleProfileEditSuccess"
       @close="handleProfileEditClose"
-      :profileEditVisiable="profileEditVisiable">
+      :profileEditVisible="profileEditVisible">
     </update-profile>
   </div>
 </template>
@@ -47,7 +47,7 @@ export default {
   data () {
     return {
       updateAvatarModelVisible: false,
-      profileEditVisiable: false,
+      profileEditVisible: false,
       userId: ''
     }
   },
@@ -60,15 +60,15 @@ export default {
       return `static/avatar/${this.user.avatar}`
     },
     sex () {
-      switch (this.user.ssex) {
-        case '0':
+      switch (this.user.gender) {
+        case 1:
           return '男'
-        case '1':
+        case 0:
           return '女'
-        case '2':
+        case 2:
           return '保密'
         default:
-          return this.user.ssex
+          return this.user.gender
       }
     }
   },
@@ -92,13 +92,13 @@ export default {
     },
     updateProfile () {
       this.$refs.updateProfile.setFormValues(this.user)
-      this.profileEditVisiable = true
+      this.profileEditVisible = true
     },
     handleProfileEditClose () {
-      this.profileEditVisiable = false
+      this.profileEditVisible = false
     },
     handleProfileEditSuccess () {
-      this.profileEditVisiable = false
+      this.profileEditVisible = false
       this.$message.success('修改成功')
     }
   }

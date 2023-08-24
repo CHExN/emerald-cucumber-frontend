@@ -6,18 +6,18 @@
     placement="right"
     :closable="false"
     @close="onClose"
-    :visible="dictAddVisiable"
+    :visible="dictAddVisible"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
     <a-form :form="form">
       <a-form-item label='键' v-bind="formItemLayout">
         <a-input-number style="width: 100%"
-                 v-decorator="['keyy',
+                 v-decorator="['key',
                    {rules: [
                     { required: true, message: '不能为空'}
                   ]}]"/>
       </a-form-item>
       <a-form-item label='值' v-bind="formItemLayout">
-        <a-input v-decorator="['valuee',
+        <a-input v-decorator="['value',
                    {rules: [
                     { required: true, message: '不能为空'},
                     { max: 20, message: '长度不能超过20个字符'}
@@ -54,7 +54,7 @@ const formItemLayout = {
 export default {
   name: 'DictAdd',
   props: {
-    dictAddVisiable: {
+    dictAddVisible: {
       default: false
     }
   },
@@ -92,7 +92,7 @@ export default {
       })
     },
     setDictFields () {
-      let values = this.form.getFieldsValue(['keyy', 'valuee', 'tableName', 'fieldName'])
+      let values = this.form.getFieldsValue(['key', 'value', 'tableName', 'fieldName'])
       if (typeof values !== 'undefined') {
         Object.keys(values).forEach(_key => { this.dict[_key] = values[_key] })
       }

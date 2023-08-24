@@ -6,7 +6,7 @@
     placement="right"
     :closable="true"
     @close="close"
-    :visible="roleInfoVisiable"
+    :visible="roleInfoVisible"
     style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
       <p><a-icon type="crown" />&nbsp;&nbsp;角色名称：{{roleInfoData.roleName}}</p>
       <p :title="roleInfoData.remark"><a-icon type="book" />&nbsp;&nbsp;角色描述：{{roleInfoData.remark}}</p>
@@ -28,7 +28,7 @@
 export default {
   name: 'RoleInfo',
   props: {
-    roleInfoVisiable: {
+    roleInfoVisible: {
       require: true,
       default: false
     },
@@ -51,11 +51,11 @@ export default {
     }
   },
   watch: {
-    roleInfoVisiable () {
-      if (this.roleInfoVisiable) {
-        this.$get('menu').then((r) => {
-          this.menuTreeData = r.data.rows.children
-          this.$get('role/menu/' + this.roleInfoData.roleId).then((r) => {
+    roleInfoVisible () {
+      if (this.roleInfoVisible) {
+        this.$post('menu').then((r) => {
+          this.menuTreeData = r.data.data.records.children
+          this.$get('role/menu/' + this.roleInfoData.id).then((r) => {
             let length = this.checkedKeys.length
             this.checkedKeys.splice(0, length, r.data)
             this.key = +new Date()
